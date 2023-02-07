@@ -7,6 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Lock, Pool
 import numpy as np
 
+
 from utils import *
 
 
@@ -23,8 +24,9 @@ b = [1,2,3,4,5,6,7,8]
 
 if __name__ == '__main__':
     
+    cpu_count = os.cpu_count()
 
-    MutiProcess_pool = Pool(processes=4)
+    MutiProcess_pool = Pool(processes=cpu_count)
     
     for i, k in zip(a, b):
         MutiProcess_pool.apply_async(my_print1, (i, k)) # 多个参数，但是不能迭代，只能一个一个加
@@ -32,5 +34,6 @@ if __name__ == '__main__':
     MutiProcess_pool.join()
     
     # MutiProcess_pool.map_async(my_print2, a) # 单个参数，可迭代
+    
 
 
