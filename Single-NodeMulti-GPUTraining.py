@@ -13,8 +13,6 @@ from torchvision.datasets import MNIST
 import os
 import argparse
 
-def cleanup():
-    dist.destroy_process_group()
 
 class ToyModel(torch.nn.Module):
     def __init__(self):
@@ -26,42 +24,36 @@ class ToyModel(torch.nn.Module):
     def forward(self, x):
         return self.net2(self.relu(self.net1(x)))
 
-    
+# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py
+
 if __name__ == "__main__":
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--local_rank", type=int, help="local device id on current node")
-    parser.add_argument("--world_size", type=int, default=2, help="world size")
+    parser = argparse.ArgumentParser(description='start single Node with MultiGpu by torchrun')
     args = parser.parse_args()
 
+    dist.init_process_group(backend="nccl")
     
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
-    dist.init_process_group(backend="nccl", rank=args.local_rank, world_size=args.world_size)
-    model = ToyModel().to(args.local_rank)
-    ddp_model = DDP(model, device_ids=[args.local_rank])
+    gpu_id = int(os.environ["LOCAL_RANK"])
     
-    dataset = MNIST()
-    train_sampler = DistributedSampler(dataset)
-    train_loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=False, sampler=train_sampler)
-
-
-    optimizer = torch.optim.SGD(ddp_model.parameters(), lr=0.1)
+    print(f"gpu_id : {gpu_id}")
+    print(f"!!! distributed WORLD_SIZE : {os.environ['WORLD_SIZE']}")
+    print(f"!!! distributed LOCAL_RANK : {os.environ['LOCAL_RANK']}")
+    print(f"!!! distributed RANK : {dist.get_rank()}")
     
+    model = ToyModel().to(gpu_id)
+    
+    ddp_model = DDP(model, device_ids=[gpu_id])
     
     loss_fn = nn.MSELoss()
-    optimizer.zero_grad()
     
     data = torch.randn(10, 10).to(args.local_rank)
     labels = torch.randn(10, 5).to(args.local_rank)
     
     outputs = ddp_model(data)
     
-    loss_fn(outputs, labels).backward()
-    optimizer.step()
-
-    # train_sampler.set_epoch(0)
-
+    loss = loss_fn(outputs, labels)
+    
+    print(f"demo done !!! loss: {loss}")
     
     dist.destroy_process_group()
     
