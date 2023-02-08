@@ -24,7 +24,7 @@ class ToyModel(torch.nn.Module):
     def forward(self, x):
         return self.net2(self.relu(self.net1(x)))
 
-# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py
+# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py (args1 args2 ...)
 
 if __name__ == "__main__":
     
