@@ -1,14 +1,8 @@
 import torch.nn as nn
 import torch
-import torch.nn.functional as F
 
-import torch.multiprocessing as mp
-from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
-
-from torchvision.models import resnet18
-from torchvision.datasets import MNIST
 
 import os
 import argparse
