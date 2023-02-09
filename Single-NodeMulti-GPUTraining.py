@@ -24,17 +24,22 @@ class ToyModel(torch.nn.Module):
     def forward(self, x):
         return self.net2(self.relu(self.net1(x)))
 
+# 调用命令 节点数nnodes nproc_per_node每个节点GPU数
 # torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py (args1 args2 ...)
 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='start single Node with MultiGpu by torchrun')
     args = parser.parse_args()
+    # 0-使用torchrun不再需传入wordsize变量
 
+    # 1-初始化线程
     dist.init_process_group(backend="nccl")
     
+    # 2-LOCAL_RANK由torchrun自动设置
     gpu_id = int(os.environ["LOCAL_RANK"])
     
+    # 3-os.environ['WORLD_SIZE']由torchrun自动设置
     print(f"gpu_id : {gpu_id}")
     print(f"!!! distributed WORLD_SIZE : {os.environ['WORLD_SIZE']}")
     print(f"!!! distributed LOCAL_RANK : {os.environ['LOCAL_RANK']}")
