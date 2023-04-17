@@ -19,8 +19,9 @@ if __name__ == "__main__":
     # u = x.view(b, c * s * s, h // s, w // s)
     u = z.view(b, c * s * s, h // s, w // s)
     print(u.shape)
-    back_img = trans_back(u[0,6:9, ...])
-    back_img.show()
+    back_img = trans_back(u[0,9:, ...])
+    # back_img.show()
+    back_img.save("5.jpg")
     
     # u = torch.cat((x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]), 1)
     # print(u.shape)
