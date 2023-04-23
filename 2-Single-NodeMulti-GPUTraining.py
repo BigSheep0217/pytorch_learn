@@ -19,12 +19,18 @@ class ToyModel(torch.nn.Module):
         return self.net2(self.relu(self.net1(x)))
 
 # 调用命令 节点数nnodes nproc_per_node每个节点GPU数
-# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py (args1 args2 ...)
+# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py --first-arg 0 --second-arg 1
 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='start single Node with MultiGpu by torchrun')
+    parser.add_argument("--first-arg", type=int, default=0)
+    parser.add_argument("--second-arg", type=int, default=0)
+    
     args = parser.parse_args()
+    
+    print(f"get parser {args.first_arg} {args.second_arg}")
+    
     # 0-使用torchrun不再需传入wordsize变量
 
     # 1-初始化线程
@@ -45,8 +51,8 @@ if __name__ == "__main__":
     
     loss_fn = nn.MSELoss()
     
-    data = torch.randn(10, 10).to(args.local_rank)
-    labels = torch.randn(10, 5).to(args.local_rank)
+    data = torch.randn(10, 10).to(gpu_id)
+    labels = torch.randn(10, 5).to(gpu_id)
     
     outputs = ddp_model(data)
     

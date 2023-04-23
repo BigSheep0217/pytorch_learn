@@ -36,8 +36,6 @@ def prepare_dataloader(dataset: Dataset, batch_size: int):
         shuffle=False,
         sampler=DistributedSampler(dataset)
     )
-    
-# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py (args1 args2 ...)
 
 def load_snapshot(model, snapshot_path):
     if os.path.isfile(snapshot_path) and snapshot_path.endwith(".pt"):
@@ -101,6 +99,7 @@ def run_batch(source, targets, optimizer, model, loss_fn, gpu_id):
 def save_condition(epoch):
     return False
 
+# torchrun --standalone --nnodes=1 --nproc_per_node=2 train.py (args1 args2 ...)
 
 def main():
     # 1-初始化线程
@@ -130,8 +129,6 @@ def main():
         if gpu_id==0 and save_condition(epoch):
             save_snapshot(model, epoch, "snapshot_path")
             
-
-        
     dist.destroy_process_group()
 
 if __name__ == '__main__':
